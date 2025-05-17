@@ -180,6 +180,63 @@ func processMarkdownFiles(config Config) error {
 	return err
 }
 
+// 複製非 Markdown 檔案到輸出目錄
+func copyNonMarkdownFiles(config Config) error {
+	fmt.Println("複製非 Markdown 檔案到輸出目錄...")
+
+	// 處理所有非 Markdown 文件
+	err := filepath.Walk(config.PagesDir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// 跳過目錄
+		if info.IsDir() {
+			return nil
+		}
+
+		// 跳過 Markdown 文件
+		if strings.HasSuffix(strings.ToLower(info.Name()), ".md") {
+			return nil
+		}
+
+		// 計算相對路徑
+		relPath, err := filepath.Rel(config.PagesDir, path)
+		if err != nil {
+			fmt.Printf("計算相對路徑失敗: %v\n", err)
+			return nil
+		}
+
+		// 構建目標路徑
+		destPath := filepath.Join(config.OutputDir, relPath)
+
+		// 確保目標目錄存在
+		destDir := filepath.Dir(destPath)
+		if err := os.MkdirAll(destDir, 0755); err != nil {
+			fmt.Printf("創建目標目錄失敗: %v\n", err)
+			return nil
+		}
+
+		// 讀取源文件
+		data, err := os.ReadFile(path)
+		if err != nil {
+			fmt.Printf("讀取文件 %s 失敗: %v\n", path, err)
+			return nil
+		}
+
+		// 寫入目標文件
+		if err := os.WriteFile(destPath, data, 0644); err != nil {
+			fmt.Printf("寫入文件 %s 失敗: %v\n", destPath, err)
+			return nil
+		}
+
+		fmt.Printf("複製了文件: %s -> %s\n", path, destPath)
+		return nil
+	})
+
+	return err
+}
+
 // 監視文件變更並在變更時重新生成頁面
 func watchForChanges(config Config) {
 	fmt.Printf("監視模式已啟用，監視間隔: %d 秒\n", config.WatchDelay)
@@ -187,14 +244,14 @@ func watchForChanges(config Config) {
 
 	// 儲存檔案的最後修改時間
 	fileModTimes := make(map[string]time.Time)
-
 	// 初始化檔案修改時間
 	updateModTimes := func() {
 		err := filepath.Walk(config.PagesDir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
-			if !info.IsDir() && strings.HasSuffix(strings.ToLower(info.Name()), ".md") {
+			if !info.IsDir() {
+				// 記錄所有檔案的修改時間，包括非 Markdown 檔案
 				fileModTimes[path] = info.ModTime()
 			}
 			return nil
@@ -217,13 +274,12 @@ func watchForChanges(config Config) {
 		time.Sleep(time.Duration(config.WatchDelay) * time.Second)
 
 		filesChanged := false
-
-		// 檢查 Markdown 文件
+		// 檢查所有檔案
 		err := filepath.Walk(config.PagesDir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
-			if !info.IsDir() && strings.HasSuffix(strings.ToLower(info.Name()), ".md") {
+			if !info.IsDir() {
 				lastMod, exists := fileModTimes[path]
 				if !exists || info.ModTime().After(lastMod) {
 					filesChanged = true
@@ -246,12 +302,17 @@ func watchForChanges(config Config) {
 				fmt.Printf("檢測到佈局文件變更: %s\n", config.LayoutFile)
 			}
 		}
-
 		// 如果有檔案變更，重新生成頁面
 		if filesChanged {
 			fmt.Println("重新生成所有頁面...")
+			// 先處理 Markdown 檔案
 			if err := processMarkdownFiles(config); err != nil {
 				fmt.Printf("處理 Markdown 檔案失敗: %v\n", err)
+			}
+
+			// 然後複製非 Markdown 檔案
+			if err := copyNonMarkdownFiles(config); err != nil {
+				fmt.Printf("複製非 Markdown 檔案失敗: %v\n", err)
 			} else {
 				fmt.Println("所有頁面已更新!")
 			}
@@ -347,11 +408,19 @@ func main() {
 			fmt.Printf("處理 Markdown 檔案失敗: %v\n", err)
 			return
 		}
+		if err := copyNonMarkdownFiles(config); err != nil {
+			fmt.Printf("複製非 Markdown 檔案失敗: %v\n", err)
+			return
+		}
 		// 然後啟動監視
 		watchForChanges(config)
 	} else {
 		if err := processMarkdownFiles(config); err != nil {
 			fmt.Printf("處理 Markdown 檔案失敗: %v\n", err)
+			return
+		}
+		if err := copyNonMarkdownFiles(config); err != nil {
+			fmt.Printf("複製非 Markdown 檔案失敗: %v\n", err)
 			return
 		}
 		fmt.Println("完成! 所有頁面都已生成。")

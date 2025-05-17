@@ -2,6 +2,8 @@
 
 這是一個示例頁面，用於展示我們的頁面生成器功能。這行是新增的內容，用於測試監視模式。
 
+<link rel="stylesheet" href="style.css">
+
 ## 特點
 
 - 將 Markdown 轉換為 HTML

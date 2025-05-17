@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+
+        footer {
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+            padding-top: 10px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>{{.Title}}</h1>
+    </header>
+
+    <main>
+        {{.Content}}
+    </main>
+    <footer>
+        &copy; 2025 easyPages | 作者: {{.Author}} | 生成於: {{.GeneratedAt}}
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+# easyPages 配置文件
+
+# 基本設置
+[general]
+pagesDir = "pages"         # Markdown 檔案所在的目錄
+outputDir = "dist"         # 輸出 HTML 檔案的目錄
+layoutFile = "layout.html" # 佈局模板檔案
+author = "easyPages Team"  # 頁面作者
+
+# 監視模式設置
+[watch]
+enabled = false # 是否啟用監視模式
+delay = 5       # 監視間隔 (秒)

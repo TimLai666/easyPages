@@ -12,6 +12,18 @@
 - 正確處理 Markdown 語法元素 (如標題、列表、連結等)
 - 使用 TOML 配置文件管理設置
 
+## 安裝前置條件
+
+在使用 easyPages 前，您需要安裝 Go 環境：
+
+1. 前往 [Go 官方網站](https://golang.org/dl/) 下載適合您作業系統的安裝包
+2. 按照官方指南完成安裝
+3. 驗證安裝成功：
+   ```bash
+   go version
+   ```
+   應顯示已安裝的 Go 版本
+
 ## 使用方法
 
 1. 將 Markdown 檔案放入 `pages` 資料夾
@@ -19,10 +31,7 @@
 3. 根據需要修改 `config.toml` 配置文件
 4. 執行程式：
    ```bash
-   # 直接運行 (Windows PowerShell)
-   .\generate.ps1
-   
-   # 或使用 Go 命令
+   # 使用 Go 命令
    go run main.go
    ```
 5. 生成的 HTML 檔案將保存在 `dist` 資料夾中
@@ -66,23 +75,6 @@ go run main.go -pages content -output public -author "easyPages Team"
 go run main.go -watch -delay 3
 ```
 
-### Windows 使用者
-
-Windows 使用者可以直接使用提供的 `generate.bat` 批處理文件：
-
-```batch
-# 基本使用
-generate.bat
-
-# 使用監視模式
-generate.bat -watch
-
-# 自定義參數
-generate.bat -pages content -output public -author "easyPages Team"
-```
-
-所有命令行參數在 bat 文件中同樣適用。
-
 ## Markdown 中使用 HTML
 
 您可以在 Markdown 文件中直接編寫 HTML 代碼，頁面生成器將保留這些 HTML 標籤。例如：
@@ -112,7 +104,7 @@ generate.bat -pages content -output public -author "easyPages Team"
 ## 項目結構
 
 ```text
-hoomie-studio/
+easyPages/
 ├── dist/           # 生成的 HTML 文件目錄
 ├── pages/          # Markdown 源文件目錄
 ├── layout.html     # HTML 模板文件
